@@ -238,3 +238,31 @@ class: inverse, center, middle
 
 # Demo
 
+.large[https://brunj7.github.io/metajam-presentations/metajam-demo.html]
+
+
+---
+class: middle
+
+
+# Thank you!
+
+
+Work on this package was supported by:
+
+- NSF-PLR grant #1546024 to M. B. Jones, S. Baker-Yeboah, J. Dozier, M. Schildhauer, and A. Budden
+- Long Term Ecological Research (LTER) National Communications Office (LNCO), NSF grant #1545288 to F. Davis, M. Schildhauer, S. Rebich Hespanha, J. Caselle and C. Blanchette
+
+<br>
+<br>
+<br>
+<br>
+
+.foootnotes[
+.center[
+Presentation URL:  
+https://brunj7.github.io/metajam-presentations/metajam-nceas-roundtable18.html  
+
+_Slides created using the R package [**xaringan**](https://github.com/yihui/xaringan)_
+]
+]

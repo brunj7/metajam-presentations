@@ -1,0 +1,145 @@
+---
+title: "Metajam Demo"
+author: "Julien Brun, NCEAS"
+date: "NCEAS roundtable, 11/14/2018"
+output: 
+  html_document:
+    theme: "spacelab"
+    df_print: "paged"
+    toc: true
+    toc_depth: 2
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
+```
+
+
+# Single dataset
+
+Data Package on KNB: https://knb.ecoinformatics.org/view/doi:10.5063/F1CJ8BPH
+
+```{r single download, eval=FALSE}
+library(metajam)
+
+dataset_url <- "https://knb.ecoinformatics.org/knb/d1/mn/v2/object/urn%3Auuid%3A7fc6f6db-c5ea-426a-a743-1f2edafb43b8"
+data_path <- "~/Desktop"
+
+prod_path <- download_d1_data(data_url = dataset_url, path = data_path)
+```
+
+```{r single read}
+hh_lang <- read_d1_files(folder_path  = prod_path)
+```
+
+```{r german in alaska}
+library(tidyverse)
+
+german_sp <- hh_lang$data %>% 
+  group_by(Year) %>% 
+  summarize(n_german = sum(german))
+
+                                           
+plot(german_sp)                                              
+                                               
+```
+
+
+# Single dataset - with header
+
+Data Package on ADC: https://doi.org/10.18739/A2ZX05
+
+```{r single download header}
+library(metajam)
+
+dataset_url <- "urn%3Auuid%3Aec05ab95-844c-4cf0-95b0-40e02ba44f63"
+data_path <- "~/Desktop"
+
+prod_path <- download_d1_data(data_url = dataset_url, path = data_path)
+```
+
+
+```{r read data header}
+data_transect <- read_d1_files(prod_path)
+```
+
+```{r}
+View(data_transect$data)
+```
+
+Does not look right!!
+
+
+There is a header!! since `read_d1_files` use `readr::read_csv` by default we can pass all the options this function has:
+
+```{r read data header with param, }
+data_transect <- read_d1_files(prod_path, skip=7)
+
+View(data_transect$data)
+```
+```{r}
+View(data_transect$data)
+```
+
+# Changing the function to read files - Excel
+
+Data package on KNB: https://doi.org/10.5063/F19W0CQ5
+
+```{r single download xlsx, eval=FALSE}
+library(metajam)
+
+dataset_url <- "https://knb.ecoinformatics.org/knb/d1/mn/v2/object/urn%3Auuid%3Ab04cd4ce-ee5f-416a-89d4-83ac80180a26"
+data_path <- "~/Desktop"
+
+yield_path <- download_d1_data(data_url = dataset_url, path = data_path)
+
+# View(yield_data$data)
+```
+
+## Read the data 
+
+```{r read xlsx}
+library(readxl)
+
+yield_data <- read_d1_files(yield_path, "read_excel")
+
+```
+
+# Check version
+
+```{r check version}
+check_version("doi:10.18739/A2HF7Z", formatType = "metadata")
+```
+
+# Not limited to tabular data
+
+Data package on KNB: https://doi.org/10.5063/F1KD1VVS
+
+```{r geospatial}
+
+# download_d1_data("https://knb.ecoinformatics.org/knb/d1/mn/v2/object/karakoenig.31.1", "~/Desktop")
+
+# Read the geojson
+nm_wells <- geojsonio::geojson_read("~/Desktop/brun.34.23__nmwells/nmwellsNA.json", what="sp")
+
+# Map it
+leaflet::leaflet(nm_wells) %>%
+  setView(-98, 40, zoom = 4)
+  leaflet::addTiles() %>% 
+  leaflet::addCircleMarkers()
+  
+# Still works to load metadata
+read_d1_files("~/Desktop/brun.34.23__nmwells")
+```
+
+
+# Batch download datasets
+
+https://nceas.github.io/metajam/articles/dataset-batch-processing.html
+
+
+# Download the whole package
+
+https://nceas.github.io/metajam/articles/package-download.html
+
