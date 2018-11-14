@@ -18,14 +18,16 @@ knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
 
 # Single dataset
 
-Data Package on KNB: https://knb.ecoinformatics.org/view/doi:10.5063/F1CJ8BPH
+Data Package on KNB: https://doi.org/10.5063/F1CJ8BPH
 
 ```{r single download, eval=FALSE}
 library(metajam)
 
+# Download info
 dataset_url <- "https://knb.ecoinformatics.org/knb/d1/mn/v2/object/urn%3Auuid%3A7fc6f6db-c5ea-426a-a743-1f2edafb43b8"
 data_path <- "~/Desktop"
 
+# Download
 prod_path <- download_d1_data(data_url = dataset_url, path = data_path)
 ```
 
@@ -33,14 +35,17 @@ prod_path <- download_d1_data(data_url = dataset_url, path = data_path)
 hh_lang <- read_d1_files(folder_path  = prod_path)
 ```
 
+### How many German speakers?
+
 ```{r german in alaska}
 library(tidyverse)
 
+# Get the sum accross region per year
 german_sp <- hh_lang$data %>% 
   group_by(Year) %>% 
   summarize(n_german = sum(german))
 
-                                           
+# plot it                                           
 plot(german_sp)                                              
                                                
 ```
@@ -48,17 +53,22 @@ plot(german_sp)
 
 # Single dataset - with header
 
-Data Package on ADC: https://doi.org/10.18739/A2ZX05
+Data Package on ADC: https://doi.org/10.18739/A25X25C37
+
+### Download
 
 ```{r single download header}
 library(metajam)
 
+# Download info
 dataset_url <- "urn%3Auuid%3Aec05ab95-844c-4cf0-95b0-40e02ba44f63"
 data_path <- "~/Desktop"
 
+# Download
 prod_path <- download_d1_data(data_url = dataset_url, path = data_path)
 ```
 
+### Read into R
 
 ```{r read data header}
 data_transect <- read_d1_files(prod_path)
@@ -68,36 +78,57 @@ data_transect <- read_d1_files(prod_path)
 View(data_transect$data)
 ```
 
-Does not look right!!
+Does not look right!! Let us check the metadata!
 
+```{r}
+data_transect$attribute_metadata
+```
 
-There is a header!! since `read_d1_files` use `readr::read_csv` by default we can pass all the options this function has:
+Does not match what we imported...
+
+Let us look at the data. There is a header!! since `read_d1_files` use `readr::read_csv` by default we can pass all the options this function has:
 
 ```{r read data header with param, }
 data_transect <- read_d1_files(prod_path, skip=7)
 
 View(data_transect$data)
 ```
+
+### Even better:
+
 ```{r}
-View(data_transect$data)
+# Read only the data
+data_transect <- read_d1_files(prod_path, skip=9, col_names=FALSE)
+# View(data_transect$data)
+
+# We have the header in the attribute level metadata!
+View(data_transect$attribute_metadata)
+
+# Add headers to the data set
+names(data_transect$data) <- data_transect$attribute_metadata$attributeName
+# View(data_transect$data)
 ```
 
 # Changing the function to read files - Excel
 
 Data package on KNB: https://doi.org/10.5063/F19W0CQ5
 
+### Download
+
 ```{r single download xlsx, eval=FALSE}
 library(metajam)
 
+# Download info
 dataset_url <- "https://knb.ecoinformatics.org/knb/d1/mn/v2/object/urn%3Auuid%3Ab04cd4ce-ee5f-416a-89d4-83ac80180a26"
 data_path <- "~/Desktop"
 
+# Download
 yield_path <- download_d1_data(data_url = dataset_url, path = data_path)
 
 # View(yield_data$data)
 ```
 
-## Read the data 
+### Read the data 
 
 ```{r read xlsx}
 library(readxl)
@@ -125,13 +156,16 @@ nm_wells <- geojsonio::geojson_read("~/Desktop/brun.34.23__nmwells/nmwellsNA.jso
 
 # Map it
 leaflet::leaflet(nm_wells) %>%
-  setView(-98, 40, zoom = 4)
+  leaflet::setView(-98, 40, zoom = 4) %>%
   leaflet::addTiles() %>% 
   leaflet::addCircleMarkers()
   
 # Still works to load metadata
 read_d1_files("~/Desktop/brun.34.23__nmwells")
 ```
+# Download the whole package
+
+https://nceas.github.io/metajam/articles/package-download.html
 
 
 # Batch download datasets
@@ -139,7 +173,5 @@ read_d1_files("~/Desktop/brun.34.23__nmwells")
 https://nceas.github.io/metajam/articles/dataset-batch-processing.html
 
 
-# Download the whole package
 
-https://nceas.github.io/metajam/articles/package-download.html
 

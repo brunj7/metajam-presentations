@@ -230,54 +230,87 @@ div.tocify {
 
 <div id="single-dataset" class="section level1">
 <h1>Single dataset</h1>
-<p>Data Package on KNB: <a href="https://knb.ecoinformatics.org/view/doi:10.5063/F1CJ8BPH" class="uri">https://knb.ecoinformatics.org/view/doi:10.5063/F1CJ8BPH</a></p>
+<p>Data Package on KNB: <a href="https://doi.org/10.5063/F1CJ8BPH" class="uri">https://doi.org/10.5063/F1CJ8BPH</a></p>
 <pre class="r"><code>library(metajam)
 
+# Download info
 dataset_url &lt;- &quot;https://knb.ecoinformatics.org/knb/d1/mn/v2/object/urn%3Auuid%3A7fc6f6db-c5ea-426a-a743-1f2edafb43b8&quot;
 data_path &lt;- &quot;~/Desktop&quot;
 
+# Download
 prod_path &lt;- download_d1_data(data_url = dataset_url, path = data_path)</code></pre>
 <pre class="r"><code>hh_lang &lt;- read_d1_files(folder_path  = prod_path)</code></pre>
+<div id="how-many-german-speakers" class="section level3">
+<h3>How many German speakers?</h3>
 <pre class="r"><code>library(tidyverse)
 
+# Get the sum accross region per year
 german_sp &lt;- hh_lang$data %&gt;% 
   group_by(Year) %&gt;% 
   summarize(n_german = sum(german))
 
-                                           
+# plot it                                           
 plot(german_sp)                                              </code></pre>
+</div>
 </div>
 <div id="single-dataset---with-header" class="section level1">
 <h1>Single dataset - with header</h1>
-<p>Data Package on ADC: <a href="https://doi.org/10.18739/A2ZX05" class="uri">https://doi.org/10.18739/A2ZX05</a></p>
+<p>Data Package on ADC: <a href="https://doi.org/10.18739/A25X25C37" class="uri">https://doi.org/10.18739/A25X25C37</a></p>
+<div id="download" class="section level3">
+<h3>Download</h3>
 <pre class="r"><code>library(metajam)
 
+# Download info
 dataset_url &lt;- &quot;urn%3Auuid%3Aec05ab95-844c-4cf0-95b0-40e02ba44f63&quot;
 data_path &lt;- &quot;~/Desktop&quot;
 
+# Download
 prod_path &lt;- download_d1_data(data_url = dataset_url, path = data_path)</code></pre>
+</div>
+<div id="read-into-r" class="section level3">
+<h3>Read into R</h3>
 <pre class="r"><code>data_transect &lt;- read_d1_files(prod_path)</code></pre>
 <pre class="r"><code>View(data_transect$data)</code></pre>
-<p>Does not look right!!</p>
-<p>There is a header!! since <code>read_d1_files</code> use <code>readr::read_csv</code> by default we can pass all the options this function has:</p>
+<p>Does not look right!! Let us check the metadata!</p>
+<pre class="r"><code>data_transect$attribute_metadata</code></pre>
+<p>Does not match what we imported…</p>
+<p>Let us look at the data. There is a header!! since <code>read_d1_files</code> use <code>readr::read_csv</code> by default we can pass all the options this function has:</p>
 <pre class="r"><code>data_transect &lt;- read_d1_files(prod_path, skip=7)
 
 View(data_transect$data)</code></pre>
-<pre class="r"><code>View(data_transect$data)</code></pre>
+</div>
+<div id="even-better" class="section level3">
+<h3>Even better:</h3>
+<pre class="r"><code># Read only the data
+data_transect &lt;- read_d1_files(prod_path, skip=9, col_names=FALSE)
+# View(data_transect$data)
+
+# We have the header in the attribute level metadata!
+View(data_transect$attribute_metadata)
+
+# Add headers to the data set
+names(data_transect$data) &lt;- data_transect$attribute_metadata$attributeName
+# View(data_transect$data)</code></pre>
+</div>
 </div>
 <div id="changing-the-function-to-read-files---excel" class="section level1">
 <h1>Changing the function to read files - Excel</h1>
 <p>Data package on KNB: <a href="https://doi.org/10.5063/F19W0CQ5" class="uri">https://doi.org/10.5063/F19W0CQ5</a></p>
+<div id="download-1" class="section level3">
+<h3>Download</h3>
 <pre class="r"><code>library(metajam)
 
+# Download info
 dataset_url &lt;- &quot;https://knb.ecoinformatics.org/knb/d1/mn/v2/object/urn%3Auuid%3Ab04cd4ce-ee5f-416a-89d4-83ac80180a26&quot;
 data_path &lt;- &quot;~/Desktop&quot;
 
+# Download
 yield_path &lt;- download_d1_data(data_url = dataset_url, path = data_path)
 
 # View(yield_data$data)</code></pre>
-<div id="read-the-data" class="section level2">
-<h2>Read the data</h2>
+</div>
+<div id="read-the-data" class="section level3">
+<h3>Read the data</h3>
 <pre class="r"><code>library(readxl)
 
 yield_data &lt;- read_d1_files(yield_path, &quot;read_excel&quot;)</code></pre>
@@ -297,20 +330,20 @@ nm_wells &lt;- geojsonio::geojson_read(&quot;~/Desktop/brun.34.23__nmwells/nmwel
 
 # Map it
 leaflet::leaflet(nm_wells) %&gt;%
-  setView(-98, 40, zoom = 4)
+  leaflet::setView(-98, 40, zoom = 4) %&gt;%
   leaflet::addTiles() %&gt;% 
   leaflet::addCircleMarkers()
   
 # Still works to load metadata
 read_d1_files(&quot;~/Desktop/brun.34.23__nmwells&quot;)</code></pre>
 </div>
-<div id="batch-download-datasets" class="section level1">
-<h1>Batch download datasets</h1>
-<p><a href="https://nceas.github.io/metajam/articles/dataset-batch-processing.html" class="uri">https://nceas.github.io/metajam/articles/dataset-batch-processing.html</a></p>
-</div>
 <div id="download-the-whole-package" class="section level1">
 <h1>Download the whole package</h1>
 <p><a href="https://nceas.github.io/metajam/articles/package-download.html" class="uri">https://nceas.github.io/metajam/articles/package-download.html</a></p>
+</div>
+<div id="batch-download-datasets" class="section level1">
+<h1>Batch download datasets</h1>
+<p><a href="https://nceas.github.io/metajam/articles/dataset-batch-processing.html" class="uri">https://nceas.github.io/metajam/articles/dataset-batch-processing.html</a></p>
 </div>
 
 
